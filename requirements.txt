@@ -1,0 +1,10 @@
+# 智能分拣中枢依赖
+flask>=3.0
+ultralytics>=8.3.0
+opencv-python>=4.8.0
+requests>=2.31
+numpy>=1.23.0
+torch>=2.7.0
+torchvision>=0.20.0
+pymodbus>=3.6
+paho-mqtt>=2.0

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智能分拣中枢 · Warehouse Sort AI</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark">◈</div>
+    <div class="brand-text">
+      <h1>智能分拣中枢</h1>
+      <p>VISION → REASONING → ROUTING</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge">推理引擎 · {{ engine }}</span>
+    <span class="badge" id="deviceBadge">设备 · --</span>
+    <span class="badge status" id="status"><i></i><span id="statusText">连接中</span></span>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage">
+    <div class="frame">
+      <img id="stream" src="/video_feed" alt="实时画面">
+      <div class="hud">
+        <span>FPS <b id="fps">--</b></span>
+        <span>推理 <b id="infer">--</b> ms</span>
+        <span>采集 <b id="backend">--</b></span>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="dispatch" id="dispatch">设备下发未启用</div>
+  </section>
+
+  <aside class="side">
+    <div class="side-head">
+      <h2>实时分拣</h2>
+      <span class="pill" id="seen">0 件</span>
+    </div>
+    <div class="items" id="items">
+      <div class="empty" id="empty">等待识别目标…</div>
+    </div>
+
+    <div class="query">
+      <h2>按名称查询去向</h2>
+      <div class="query-row">
+        <input id="q" placeholder="如 bottle / laptop / banana" autocomplete="off">
+        <button id="qbtn">推理</button>
+      </div>
+      <div class="manual" id="manual"></div>
+    </div>
+  </aside>
+</main>
+
+<footer class="chutes" id="chutes"></footer>
+
+<script>window.__ZONES__ = {{ zones | tojson }};</script>
+<script src="/static/app.js"></script>
+</body>
+</html>

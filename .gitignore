@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 模型权重（首次运行自动从 GitHub Releases 下载）
+*.pt
+*.onnx
+*.engine
+
+# 运行产物
+*.log
+snapshots/
+live.png
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

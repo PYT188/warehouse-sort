@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests flask numpy opencv-python-headless pymodbus paho-mqtt
+
+      - name: Syntax check
+        run: python -m py_compile app.py router.py devices.py mock_device.py
+
+      - name: Routing rules
+        run: |
+          python - <<'PY'
+          from router import Router, ZONES
+          r = Router()
+          cases = {"bottle": "B", "laptop": "C", "banana": "A",
+                   "book": "F", "chair": "E", "person": "X", "unknown_sku": "X"}
+          for item, chute in cases.items():
+              got = r.route(item)["chute"]
+              assert got == chute, f"{item}: expected {chute}, got {got}"
+          print("routing ok:", len(cases), "cases")
+          PY
