@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智能分拣中枢 · 视觉识别 → 去向推理 → 设备下发</title>
+<meta name="description" content="摄像头实时识别物品，推理引擎判断最终去向，通过 Modbus/TCP 下发给 PLC 或机械臂。">
+<style>
+  :root{
+    --bg:#070b10; --panel:#0f151d; --line:#1d2836; --text:#e6edf6;
+    --muted:#8b9bb0; --cyan:#38bdf8; --teal:#2dd4bf;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:radial-gradient(1100px 600px at 20% -10%,#112434 0%,var(--bg) 55%);color:var(--text);
+    font-family:"Segoe UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.65}
+  a{color:var(--cyan);text-decoration:none}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+  .mark{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#06121a;
+    background:linear-gradient(135deg,var(--cyan),var(--teal));box-shadow:0 0 22px rgba(56,189,248,.35)}
+  .brand small{display:block;font-weight:400;color:var(--muted);font-size:11px;letter-spacing:2px}
+  .btn{display:inline-block;padding:11px 20px;border-radius:11px;font-weight:600;font-size:14px;transition:.2s}
+  .btn.primary{background:linear-gradient(135deg,var(--cyan),var(--teal));color:#04121a}
+  .btn.ghost{border:1px solid var(--line);color:var(--text);background:var(--panel)}
+  .btn:hover{transform:translateY(-1px)}
+  .hero{padding:64px 0 40px}
+  .hero h1{font-size:44px;line-height:1.2;margin:0 0 14px;letter-spacing:.5px}
+  .hero h1 span{background:linear-gradient(135deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{font-size:17px;color:#b9c8da;max-width:720px;margin:0 0 26px}
+  .actions{display:flex;gap:12px;flex-wrap:wrap}
+  .shot{margin:14px 0 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .shot img{display:block;width:100%}
+  section{padding:52px 0;border-top:1px solid var(--line)}
+  h2{font-size:22px;margin:0 0 8px}
+  .sub{color:var(--muted);margin:0 0 26px;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .card{background:linear-gradient(180deg,#131b25,#0f151d);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card b{display:block;margin-bottom:8px;font-size:15px}
+  .card p{margin:0;color:var(--muted);font-size:13.5px}
+  .num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:rgba(56,189,248,.12);
+    color:var(--cyan);font-weight:700;font-size:13px;margin-bottom:10px}
+  pre{background:#0b1118;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:13px;
+    color:#cfe3f5;line-height:1.6}
+  code{font-family:Consolas,"Cascadia Mono",monospace}
+  .note{border-left:3px solid var(--cyan);background:rgba(56,189,248,.06);padding:12px 16px;border-radius:0 10px 10px 0;
+    color:#b9c8da;font-size:13.5px;margin-top:18px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:500}
+  footer{border-top:1px solid var(--line);padding:28px 0 50px;color:var(--muted);font-size:13px;display:flex;
+    justify-content:space-between;gap:12px;flex-wrap:wrap}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="mark">◈</div>
+      <div>智能分拣中枢<small>VISION → REASONING → ROUTING</small></div>
+    </div>
+    <a class="btn ghost" href="https://github.com/PYT188/warehouse-sort">GitHub 源码</a>
+  </header>
+
+  <section class="hero" style="border:0;padding-bottom:0">
+    <h1>让摄像头看懂物品，<br>再决定它<span>该去哪里</span>。</h1>
+    <p>YOLO11 实时识别画面里的物体，推理引擎判断分拣格口与操作要求，通过 Modbus TCP / TCP-JSON
+       把指令下发给 PLC 或机械臂。一套跑在工控机上的开源方案。</p>
+    <div class="actions">
+      <a class="btn primary" href="https://github.com/PYT188/warehouse-sort">查看源码</a>
+      <a class="btn ghost" href="#start">快速开始</a>
+    </div>
+    <div class="shot"><img src="screenshot.png" alt="智能分拣中枢界面"></div>
+  </section>
+
+  <section>
+    <h2>三个环节，各司其职</h2>
+    <p class="sub">识别、决策、执行解耦，任何一层都能单独替换。</p>
+    <div class="grid">
+      <div class="card">
+        <span class="num">1</span>
+        <b>看 · 视觉识别</b>
+        <p>MSMF 采集 720p @30fps，YOLO11s FP16 推理约 10ms/帧，实时框出目标并着色。</p>
+      </div>
+      <div class="card">
+        <span class="num">2</span>
+        <b>想 · 去向推理</b>
+        <p>内置 80 类品类知识库，输出格口、区域、搬运要求与理由；配置 API Key 可切换大模型。</p>
+      </div>
+      <div class="card">
+        <span class="num">3</span>
+        <b>动 · 设备下发</b>
+        <p>Modbus TCP / TCP-JSON / MQTT 三种后端，串行队列、超时重连、幂等指令 ID。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>格口设计</h2>
+    <p class="sub">A–F 六个自动格口，X 为人工复核。</p>
+    <table>
+      <tr><th>格口</th><th>区域</th><th>典型物品</th></tr>
+      <tr><td>A</td><td>生鲜冷链区</td><td>香蕉、苹果、披萨、蛋糕</td></tr>
+      <tr><td>B</td><td>食品饮料区</td><td>瓶子、杯子、碗</td></tr>
+      <tr><td>C</td><td>3C 电子区</td><td>手机、笔记本、键盘</td></tr>
+      <tr><td>D</td><td>服饰箱包区</td><td>背包、行李箱、领带</td></tr>
+      <tr><td>E</td><td>家居日用区</td><td>椅子、沙发、盆栽</td></tr>
+      <tr><td>F</td><td>文体办公区</td><td>书、滑板、剪刀</td></tr>
+      <tr><td>X</td><td>人工复核区</td><td>人、动物、车辆、未知品类</td></tr>
+    </table>
+  </section>
+
+  <section id="start">
+    <h2>三分钟跑起来</h2>
+    <p class="sub">需要 Python 3.10+；有 NVIDIA 显卡会快很多，没有也能用 CPU 跑。</p>
+    <pre><code>git clone https://github.com/PYT188/warehouse-sort.git
+cd warehouse-sort
+pip install -r requirements.txt
+python app.py
+# 浏览器打开 http://127.0.0.1:8765</code></pre>
+    <div class="note">
+      这是静态介绍页，托管在 GitHub Pages。实时摄像头演示需要在本机运行上面的命令——
+      因为它要用到本机摄像头和 GPU，纯网页托管跑不了。
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 智能分拣中枢 · MIT 开源</div>
+    <div><a href="https://github.com/PYT188/warehouse-sort">github.com/PYT188/warehouse-sort</a></div>
+  </footer>
+
+</div>
+</body>
+</html>
